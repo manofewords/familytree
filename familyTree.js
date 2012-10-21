@@ -229,45 +229,7 @@ FamilyTree.prototype = {
     },
     getData : function() {
         this.data = [];
-        /*
-        this.data = [new Person(1,
-            "Markus Hitz",
-            1951,
-            null,
-            null,
-            null
-        ), new Person(2,
-            "Ann Killer",
-            1951,
-            null,
-            null,
-            null
-        ), new Person(3,
-            "Alessandra Hitz",
-            1976,
-            null,
-            null,
-            2
-        ), new Person(4,
-            "Manuel Hitz",
-            1980,
-            null,
-            1,
-            2
-        ), new Person(5,
-            "Anya Hitz",
-            1982,
-            null,
-            1,
-            2
-        ), new Person(6,
-            "Aïsha Hitz",
-            1983,
-            null,
-            1,
-            2
-        )];
-        */
+        // TODO: import/export
     },
     getParentIndex : function(person, kind) {
         var i, leni;
@@ -347,11 +309,11 @@ FamilyTree.prototype = {
 
 function Person(id, name, birth, death, father, mother) {
     this.id = id;
-    this.name = name;
-    this.birth = birth;
-    this.death = death;
-    this.father = father;
-    this.mother = mother;
+    this.name = name; // String
+    this.birth = birth; // Date
+    this.death = death; // Date
+    this.father = father; // id
+    this.mother = mother; // id
 };
 
 Person.prototype = {
@@ -361,5 +323,3 @@ Person.prototype = {
             (this.death ? ' - ' + this.death.getFullYear() : '');
     }
 };
-
-// TODO: import/export
