@@ -10,6 +10,7 @@
 function FamilyTree() {
     this.originX = 0;
     this.maxX = 0;
+    this.shiftX = 0; // if 2 persons are born the same year, shift the lines a bit to the right
     this.data = []; // Array of Person
     this.paper = null; // SVG canvas
     this.highlight = {}; // structure that tells what to highlight when a person is selected
@@ -18,8 +19,8 @@ function FamilyTree() {
 
 FamilyTree.prototype = {
     lineColor : '#2600B0',
-    dotColor : '#fff',
-    highlightColor : '#f00',
+    dotAndTextColor : '#FFFFFF',
+    highlightColor : '#D72727',
     
     // use multiples of 2
     lineSeparationX : 10, // lineSeparationY ?
@@ -144,7 +145,8 @@ FamilyTree.prototype = {
             d,
             x,
             y,
-            person;
+            person,
+            birthYear;
     
         this.data.sort(this.sortData); // very important! sort chronologically to draw parents first!
         
@@ -159,35 +161,39 @@ FamilyTree.prototype = {
         this.paper = Raphael('canvas', 
             this.yearInPixels * (this.maxX - this.originX), 
             this.data.length * (this.lineSeparationX + this.lineSize));
-        
+
         for(i = 0, leni = this.data.length; i < leni; i++) {
             person = this.data[i];
+            birthYear = person.birth.getFullYear();
+
+            if(i > 0 && birthYear === this.data[i-1].birth.getFullYear()) {
+                this.shiftX += this.linkLineSize;
+            }
             
             this.highlight[person.id] = [];
             
-            x = this.yearInPixels * (person.birth.getFullYear() - this.originX);
+            x = this.yearInPixels * (birthYear - this.originX) + this.shiftX;
             y = i * (this.lineSeparationX + this.lineSize);
                       
             line = this.paper.rect(x, 
                 y, 
-                this.yearInPixels * (person.death ? person.death.getFullYear() - person.birth.getFullYear() : this.maxX - person.birth.getFullYear()), 
+                this.yearInPixels * (person.death ? person.death.getFullYear() - birthYear : this.maxX - birthYear), 
                 this.lineSize);
             line.attr('fill', this.lineColor);
             line.attr('stroke', this.lineColor);
+            this.highlight[person.id].push(line);
             
             text = this.paper.text(x + this.linkLineSize,
-                y + 10, // TODO: lineSize/2 ?
+                y + this.lineSize / 2,
                 person.toString());
             text.attr('text-anchor', 'start');
-            text.attr('fill', this.dotColor);
+            text.attr('fill', this.dotAndTextColor);
             
             line.node.onclick = this.createDelegate(this.onPersonClick, this, [person]);
-            
-            this.highlight[person.id].push(line);
                         
             // link to parents
-            this.linkToParent(i, 'father');
-            this.linkToParent(i, 'mother');            
+            this.linkToParent(i, 'father', x);
+            this.linkToParent(i, 'mother', x);
         }
         
         $('button#add').show();
@@ -200,7 +206,7 @@ FamilyTree.prototype = {
 
         // switch previous "OFF"
         if(this.clickedLinePersonId !== null) {
-            highlights = this.highlight[this.clickedLinePersonId];              
+            highlights = this.highlight[this.clickedLinePersonId];
             for(i = 0, leni = highlights.length; i < leni; i++) { // TODO: use Array func
                 highlights[i].attr('fill', this.lineColor);
                 highlights[i].attr('stroke', this.lineColor);
@@ -209,7 +215,7 @@ FamilyTree.prototype = {
 
         if(person && this.clickedLinePersonId !== person.id) {
             // switch new "ON"
-            highlights = this.highlight[person.id];              
+            highlights = this.highlight[person.id];
             for(i = 0, leni = highlights.length; i < leni; i++) { // TODO: use Array func
                 highlights[i].attr('fill', this.highlightColor);
                 highlights[i].attr('stroke', this.highlightColor);
@@ -245,39 +251,34 @@ FamilyTree.prototype = {
     sortData : function(a, b) {
         return a.birth - b.birth;
     },
-    linkToParent : function(dataIndex, kind) {
+    linkToParent : function(dataIndex, kind, x) {
         var person,
             index,
             dot,
-            x,
             line;
         
         person = this.data[dataIndex];
     
         if(person[kind] !== null) {
             index = this.getParentIndex(person, kind);
-            if(index >= 0) {        
+            if(index >= 0) {
                 this.highlight[person.id] = this.highlight[person.id].concat(this.highlight[person[kind]]);
-                
-                x = this.yearInPixels * (person.birth.getFullYear() - this.originX);
-                      
+                                      
+                // dots representing children on parent's line
                 dot = this.paper.circle(x + this.linkLineSize / 2,
                     index * (this.lineSeparationX + this.lineSize) + this.lineSize / 2, 
                     this.lineSize / 2);
-                dot.attr('fill', this.dotColor);
-                dot.attr('stroke', this.dotColor);
-                dot.node.onclick = function() {
-                    alert(person.toString());
-                }
+                dot.attr('fill', this.dotAndTextColor);
+                dot.attr('stroke', this.dotAndTextColor);
                 
+                // vertical line connecting to parents
                 line = this.paper.rect(x,
                     index * (this.lineSeparationX + this.lineSize) + this.lineSize,
                     this.linkLineSize,
                     (dataIndex - index) * (this.lineSeparationX + this.lineSize));
                 line.attr('fill', this.lineColor);
                 line.attr('stroke', this.lineColor);
-                line.toBack(); // below the dots
-                
+                line.toBack(); // below everything
                 this.highlight[person.id].push(line);
             }
         }
