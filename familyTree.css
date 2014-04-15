@@ -1,12 +1,5 @@
-svg {
-    border: 1px dotted black;
-}
-form#details {
-    display: none;
-}
-button#add {
-    display: none;
-}
+form#details,
+button#add,
 button#edit {
     display: none;
 }
