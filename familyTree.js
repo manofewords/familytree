@@ -129,14 +129,17 @@ FamilyTree.prototype = {
         $('form#details #father').val(values.father || '');
         $('form#details #mother').val(values.mother || '');
     },
-    getFormValues : function() {            
+    getFormValues : function() {
+        var father = $('form#details #father').val(),
+            mother = $('form#details #mother').val();
+
         return {
             id : $('form#details #id').val(),
             name : $('form#details #name').val(),
             birth : $('form#details #birth').attr('valueAsDate'),
             death : $('form#details #death').attr('valueAsDate') || null,
-            father : $('form#details #father').val() || null,
-            mother : $('form#details #mother').val() || null};
+            father : father === "Father" ? null : father,
+            mother : mother === "Mother" ? null : mother};
     },
     draw : function() {
         var paper, 
@@ -151,7 +154,11 @@ FamilyTree.prototype = {
         this.data.sort(this.sortData); // very important! sort chronologically to draw parents first!
         
         this.originX = this.data[0].birth.getFullYear();
-        
+
+        this.shiftX = 0;
+        this.highlight = {};
+        this.clickedLinePersonId = null;
+
         d = new Date();
         this.maxX = d.getFullYear();
         
@@ -234,7 +241,6 @@ FamilyTree.prototype = {
         }
     },
     getData : function() {
-        this.data = [];
         // TODO: import/export
     },
     getParentIndex : function(person, kind) {
