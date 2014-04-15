@@ -6,7 +6,7 @@
         <meta charset="utf-8">
 
         <script type="text/javascript" src="jquery-1.4.2.js"></script>
-        <script type="text/javascript" src="raphael/raphael.js"></script>
+        <script type="text/javascript" src="raphael/raphael-min.js"></script>
         <script type="text/javascript" src="familyTree.js"></script>
         
         <link media="screen" rel="stylesheet" type="text/css" href="familyTree.css"/>
@@ -21,16 +21,19 @@
     <body>
         <div id="canvas"></div>
         <form id="details">
+            <p>Enter your family members starting with the oldest ones.</p>
+            <p>If you refresh or close this window, all data will be lost.</p>
             <input id="id" type="hidden" name="id"/>
             <input id="name" type="text" name="name" placeholder="Name *" autocapitalize required/>
             <input id="birth" type="date" name="birth" min="1800-01-01" placeholder="Date of birth *" required/>
             <input id="death" type="date" name="death" min="1800-01-01" placeholder="Date of death"/>
             <select id="father"><option id="optionTemplate">Father</option></select>
             <select id="mother"><option>Mother</option></select>
-            <input id="submit" type="submit" name="submit" value="Save" />
+            <input id="submit" type="submit" name="submit" value="Save"/>
             <button id="cancel">Cancel</button>
         </form>
-        <button id="add">+</button>
-        <button id="edit">&#9998;</button><!-- utf-8 pencil symbol -->
+        <button id="add">Add</button>
+        <button id="edit">Edit</button>
+        <button id="data">Data</button>
     </body>
 </html>

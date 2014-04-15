@@ -1,5 +1,6 @@
 form#details,
 button#add,
-button#edit {
+button#edit,
+button#data {
     display: none;
 }

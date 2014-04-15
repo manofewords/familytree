@@ -32,14 +32,10 @@ FamilyTree.prototype = {
         $('form#details').submit(this.createDelegate(this.editPerson, this)); 
         
         $('button#add').click(this.createDelegate(this.showForm, this));
+        $('button#data').click(this.createDelegate(this.getData, this));
         $('button#cancel').click(this.createDelegate(this.hideForm, this));
                 
         this.getData();
-        if(this.data.length === 0) {
-            this.showForm();
-        } else {
-            this.draw();
-        }
     },
     showForm : function(person) {
         var i, leni,
@@ -78,11 +74,13 @@ FamilyTree.prototype = {
         
         $('button#add').hide();
         $('button#edit').hide();
+        $('button#data').hide();
         $('form#details').show();
     },
     hideForm : function() {
         $('form#details').hide();
         $('button#add').show();
+        $('button#data').show();
         
         this.onPersonClick(null); // TODO: a bit of a hack...
     },
@@ -204,6 +202,7 @@ FamilyTree.prototype = {
         }
         
         $('button#add').show();
+        $('button#data').show();
     },
     // called when a person's line is clicked,
     // but also when the form is hidden (called with person = null)
@@ -241,7 +240,37 @@ FamilyTree.prototype = {
         }
     },
     getData : function() {
-        // TODO: import/export
+        var i, leni, newData, data;
+
+        if(this.data.length > 0) {
+            newData = JSON.parse(prompt("Your data: ", JSON.stringify(this.data)));
+
+            if(newData !== null) {
+                // meh... JSON.parse(JSON.stringify(new Date()) is not a Date object
+                // and the Person type gets lost too
+                this.data = [];
+                for(i = 0, leni = newData.length; i < leni; i++) {
+                    data = newData[i];
+                    if(data.birth !== null) {
+                        data.birth = new Date(data.birth);
+                    }
+                    if(data.death !== null) {
+                        data.death = new Date(data.death);
+                    }
+                    this.data.push(new Person(
+                        data.id,
+                        data.name, 
+                        data.birth, 
+                        data.death, 
+                        data.father, 
+                        data.mother));
+                }
+
+                this.draw();
+            }
+        } else {
+            this.showForm();
+        }
     },
     getParentIndex : function(person, kind) {
         var i, leni;
