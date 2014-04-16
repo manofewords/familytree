@@ -5,18 +5,14 @@
         
         <meta charset="utf-8">
 
-        <script type="text/javascript" src="jquery-1.4.2.js"></script>
-        <script type="text/javascript" src="raphael/raphael-min.js"></script>
-        <script type="text/javascript" src="familyTree.js"></script>
-        
-        <link media="screen" rel="stylesheet" type="text/css" href="familyTree.css"/>
-        
-        <script type="text/javascript">
-            $(document).ready(function() {
-                var familyTree = new FamilyTree();
-                familyTree.init();               
-            });
-        </script>
+        <style>
+            form#details,
+            button#add,
+            button#edit,
+            button#data {
+                display: none;
+            }
+        </style>
     </head>
     <body>
         <div id="canvas"></div>
@@ -35,5 +31,15 @@
         <button id="add">Add</button>
         <button id="edit">Edit</button>
         <button id="data">Data</button>
+
+        <script type="text/javascript" src="jquery-1.4.2.js"></script>
+        <script type="text/javascript" src="raphael-min.js"></script>
+        <script type="text/javascript" src="familyTree.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var familyTree = new FamilyTree();
+                familyTree.init();               
+            });
+        </script>
     </body>
 </html>
