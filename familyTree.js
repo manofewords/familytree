@@ -151,20 +151,21 @@ FamilyTree.prototype = {
     
         this.data.sort(this.sortData); // very important! sort chronologically to draw parents first!
         
-        this.originX = this.data[0].birth.getFullYear();
+        this.originX = this.yearInPixels * this.data[0].birth.getFullYear();
 
         this.shiftX = 0;
         this.highlight = {};
         this.clickedLinePersonId = null;
 
         d = new Date();
-        this.maxX = d.getFullYear();
-        
+        this.maxX = this.yearInPixels * (d.getFullYear() + 1) // be safe and put an additional year in case someone is born in the current year (leave room to draw the dot)
+            + this.data.length * this.linkLineSize; // worst case scenario for shiftX 
+
         // clear previous drawing
         $('#canvas').empty();
         
         this.paper = Raphael('canvas', 
-            this.yearInPixels * (this.maxX - this.originX), 
+            (this.maxX - this.originX),
             this.data.length * (this.lineSeparationX + this.lineSize));
 
         for(i = 0, leni = this.data.length; i < leni; i++) {
@@ -177,12 +178,14 @@ FamilyTree.prototype = {
             
             this.highlight[person.id] = [];
             
-            x = this.yearInPixels * (birthYear - this.originX) + this.shiftX;
+            x = this.yearInPixels * birthYear - this.originX + this.shiftX;
             y = i * (this.lineSeparationX + this.lineSize);
                       
             line = this.paper.rect(x, 
                 y, 
-                this.yearInPixels * (person.death ? person.death.getFullYear() - birthYear : this.maxX - birthYear), 
+                (person.death ? 
+                    this.yearInPixels * (person.death.getFullYear() - birthYear) : 
+                    this.maxX - this.yearInPixels * birthYear), 
                 this.lineSize);
             line.attr('fill', this.lineColor);
             line.attr('stroke', this.lineColor);
