@@ -147,7 +147,8 @@ FamilyTree.prototype = {
             x,
             y,
             person,
-            birthYear;
+            birthYear,
+            width;
     
         this.data.sort(this.sortData); // very important! sort chronologically to draw parents first!
         
@@ -180,22 +181,33 @@ FamilyTree.prototype = {
             
             x = this.yearInPixels * birthYear - this.originX + this.shiftX;
             y = i * (this.lineSeparationX + this.lineSize);
-                      
+
+            width = (person.death ? 
+                    this.yearInPixels * (person.death.getFullYear() - birthYear) : 
+                    this.maxX - this.yearInPixels * birthYear);
             line = this.paper.rect(x, 
                 y, 
-                (person.death ? 
-                    this.yearInPixels * (person.death.getFullYear() - birthYear) : 
-                    this.maxX - this.yearInPixels * birthYear), 
+                width, 
                 this.lineSize);
             line.attr('fill', this.lineColor);
             line.attr('stroke', this.lineColor);
             this.highlight[person.id].push(line);
             
-            text = this.paper.text(x + this.linkLineSize,
-                y + this.lineSize / 2,
-                person.toString());
-            text.attr('text-anchor', 'start');
-            text.attr('fill', this.dotAndTextColor);
+            // if the person lived for a very short period and its name cannot 
+            // be displayed in the line, display it to the left
+            if(width > 100) {
+                text = this.paper.text(x + this.linkLineSize,
+                    y + this.lineSize / 2,
+                    person.toString());
+                text.attr('text-anchor', 'start');
+                text.attr('fill', this.dotAndTextColor);
+            } else {
+                text = this.paper.text(x - this.linkLineSize,
+                    y + this.lineSize / 2,
+                    person.toString());
+                text.attr('text-anchor', 'end');
+                text.attr('fill', this.lineColor);
+            }
             
             line.node.onclick = this.createDelegate(this.onPersonClick, this, [person]);
                         
