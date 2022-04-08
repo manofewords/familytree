@@ -140,8 +140,7 @@ FamilyTree.prototype = {
             mother : mother === "Mother" ? null : mother};
     },
     draw : function() {
-        var paper, 
-            i, leni,
+        var i, leni,
             line,
             d,
             x,
@@ -169,6 +168,17 @@ FamilyTree.prototype = {
             (this.maxX - this.originX),
             this.data.length * (this.lineSeparationX + this.lineSize));
 
+        var personLine = function(paper, lineSize, lineColor, highlight, x, y, width, person) {
+            var line = paper.rect(x, 
+                y, 
+                width, 
+                lineSize);
+            line.attr('fill', lineColor);
+            line.attr('stroke', lineColor);
+            highlight[person.id].push(line);
+            return line;
+        }
+
         for(i = 0, leni = this.data.length; i < leni; i++) {
             person = this.data[i];
             birthYear = person.birth.getFullYear();
@@ -182,16 +192,17 @@ FamilyTree.prototype = {
             x = this.yearInPixels * birthYear - this.originX + this.shiftX;
             y = i * (this.lineSeparationX + this.lineSize);
 
-            width = (person.death ? 
-                    this.yearInPixels * (person.death.getFullYear() - birthYear) : 
-                    this.maxX - this.yearInPixels * birthYear);
-            line = this.paper.rect(x, 
-                y, 
-                width, 
-                this.lineSize);
-            line.attr('fill', this.lineColor);
-            line.attr('stroke', this.lineColor);
-            this.highlight[person.id].push(line);
+            width = this.maxX - this.yearInPixels * birthYear;
+            if(typeof person.death === 'undefined') {
+                width = this.yearInPixels * 80;
+                // 3 "dotted" lines for people with unknown death dates
+                personLine(this.paper, this.lineSize, this.lineColor, this.highlight, x + width + 5, y, 5, person);
+                personLine(this.paper, this.lineSize, this.lineColor, this.highlight, x + width + 15, y, 4, person);
+                personLine(this.paper, this.lineSize, this.lineColor, this.highlight, x + width + 24, y, 3, person);
+            } else if(person.death) {
+                width = this.yearInPixels * (person.death.getFullYear() - birthYear);
+            }
+            line = personLine(this.paper, this.lineSize, this.lineColor, this.highlight, x, y, width, person);
             
             // if the person lived for a very short period and its name cannot 
             // be displayed in the line, display it to the left
@@ -362,15 +373,21 @@ function Person(id, name, birth, death, father, mother) {
     this.id = id;
     this.name = name; // String
     this.birth = birth; // Date
-    this.death = death; // Date
+    this.death = death; // Date, null means alive, undefined means Person is dead but date is unknown
     this.father = father; // id
     this.mother = mother; // id
 };
 
 Person.prototype = {
     toString : function() {
+        var death = ''
+        if(typeof this.death === 'undefined') {
+            death = '?'
+        } else if(this.death) {
+            death = this.death.getFullYear()
+        }
         return this.name + ' ' +
             this.birth.getFullYear() + 
-            (this.death ? ' - ' + this.death.getFullYear() : '');
+            (death ? '–' + death : '');
     }
 };
